@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormState } from "react-dom";
 import { loginAction } from "./actions";
 import { SubmitButton } from "@/components/SubmitButton";
 
@@ -40,6 +40,7 @@ export default function Home() {
             </svg>
           </div>
         </div>
+
         <form action={dispatch} className="space-y-5">
           <div>
             <div className="relative">
@@ -61,12 +62,19 @@ export default function Home() {
                 autoComplete="email"
                 placeholder="Email"
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b6b] focus:border-transparent bg-[#faf9f6] text-gray-700"
+                required
               />
             </div>
+            {state?.fieldErrors?.email && (
+              <p className="mt-1 text-sm text-red-600">
+                {state.fieldErrors.email}
+              </p>
+            )}
           </div>
+
           <div>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -85,14 +93,21 @@ export default function Home() {
                 name="username"
                 type="text"
                 autoComplete="username"
+                required
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-full placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Username"
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b6b] focus:border-transparent bg-[#faf9f6] text-gray-700"
               />
             </div>
+            {state?.fieldErrors?.username && (
+              <p className="mt-1 text-sm text-red-600">
+                {state.fieldErrors.username}
+              </p>
+            )}
           </div>
+
           <div>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -111,9 +126,9 @@ export default function Home() {
                 name="password"
                 type="password"
                 autoComplete="current-password"
-                placeholder="Password"
                 required
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b6b] focus:border-transparent bg-[#faf9f6] text-gray-700"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-full placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Password"
               />
             </div>
             {state?.fieldErrors?.password && (
@@ -122,6 +137,7 @@ export default function Home() {
               </p>
             )}
           </div>
+
           {state?.status === "success" ? (
             <div className="p-3 bg-green-100 border border-green-300 rounded-md text-center">
               <p className="text-sm text-green-700">{state.message}</p>
@@ -131,6 +147,7 @@ export default function Home() {
               <p className="text-sm text-red-700">{state.message}</p>
             </div>
           ) : null}
+
           <div>
             <SubmitButton />
           </div>
