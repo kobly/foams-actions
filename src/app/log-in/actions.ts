@@ -72,5 +72,5 @@ export async function handleForm(
   const session = await getSession();
   session.id = user.id;
   await session.save();
-  redirect("/profile");
+  redirect("/");
 }

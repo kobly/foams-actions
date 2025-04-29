@@ -1,19 +1,36 @@
 "use server";
 
-import db from "@/utils/db";
+import { Prisma } from "@prisma/client";
+import db from "../utils/db";
 
-export const isEmailExist = async (email: string): Promise<boolean> => {
-  const user = await db.user.findUnique({
-    where: { email },
-    select: { id: true },
+const LIMIT_NUMBER = 2;
+
+export const getInitialTweets = async () => {
+  return db.tweet.findMany({
+    include: { user: true },
+    take: LIMIT_NUMBER,
+    orderBy: { created_at: "desc" },
   });
-  return Boolean(user);
 };
 
-export const isUsernameExist = async (username: string): Promise<boolean> => {
-  const user = await db.user.findUnique({
-    where: { username },
-    select: { id: true },
+export type InitialTweets = Prisma.PromiseReturnType<typeof getInitialTweets>;
+
+export async function getTweetsByPage(page: number) {
+  return db.tweet.findMany({
+    include: { user: true },
+    skip: LIMIT_NUMBER * (page - 1),
+    take: LIMIT_NUMBER,
+    orderBy: { created_at: "desc" },
   });
-  return Boolean(user);
-};
+}
+
+export async function getTweetTotalCount() {
+  return db.tweet.count();
+}
+
+export async function getPaginatedTweets(page: number) {
+  const tweets = await getTweetsByPage(page);
+  const total = await getTweetTotalCount();
+  const isLastPage = total <= LIMIT_NUMBER * page;
+  return { tweets, isLastPage };
+}

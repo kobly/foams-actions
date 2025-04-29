@@ -10,9 +10,9 @@ import {
 
 import { handleForm } from "./actions";
 
-import Input from "@/components/input";
-import Button from "@/components/button";
-import SuccessMessage from "@/components/success-message";
+import Input from "@/components/Input";
+import Button from "@/components/Button";
+import SuccessMessage from "@/components/SuccessMessage";
 import Link from "next/link";
 
 export default function Home() {
