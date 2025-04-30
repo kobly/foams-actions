@@ -1,4 +1,4 @@
-import { getSession } from "@/utils/sesstion";
+import { getSession } from "@/utils/session";
 import { NextRequest, NextResponse } from "next/server";
 
 interface Routes {

@@ -1,38 +1,40 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import db from "@/utils/db";
-import { getSession } from "@/utils/sesstion";
-import Button from "@/components/Button";
 
-async function getUser() {
-  const session = await getSession();
-  if (session.id) {
-    const user = await db.user.findUnique({
-      where: {
-        id: session.id,
+async function getTweet(id: number) {
+  const tweet = await db.tweet.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
       },
-    });
-    if (user) {
-      return user;
-    }
-  }
-  notFound();
+    },
+  });
+  return tweet;
 }
 
-export default async function Profile() {
-  const user = await getUser();
-  const logOut = async () => {
-    "use server";
-    const session = await getSession();
-    await session.destroy();
-    redirect("/");
-  };
+export default async function TweetDetail({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const id = Number(params.id);
+  if (isNaN(id)) return notFound();
+
+  const tweet = await getTweet(id);
+  if (!tweet) return notFound();
+
   return (
-    <main className="flex flex-col gap-20 items-center justify-center">
-      <h1 className="mt-40 text-xl font-bold">Welcome! {user?.username}!</h1>
-      <form className="w-full" action={logOut}>
-        <Button text="Log out" />
-      </form>
-    </main>
+    <div className="pb-36">
+      <h3 className="p-5 flex items-center gap-3 border-b border-neutral-500">
+        {tweet.user.username}
+      </h3>
+      <p className="p-5">{tweet.tweet}</p>
+    </div>
   );
 }

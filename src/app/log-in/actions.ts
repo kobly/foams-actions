@@ -6,7 +6,7 @@ import { typeToFlattenedError, z } from "zod";
 
 import db from "@/utils/db";
 import { isEmailExist } from "@/service/userService";
-import { getSession } from "@/utils/sesstion";
+import { getSession } from "@/utils/session";
 
 const logInSchema = z.object({
   email: z

@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 (async () => {

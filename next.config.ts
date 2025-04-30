@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  srcDir: "src",
   experimental: {
-    serverActions: true,
+    serverActions: {},
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

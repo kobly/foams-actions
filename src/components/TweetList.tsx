@@ -1,8 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+
 import ListTweet from "./ListTweet";
-import { getPaginatedTweets, InitialTweets } from "@/service/userService";
+import { getPaginatedTweets, InitialTweets } from "@/service/tweetService";
 
 export default function TweetList({
   initialTweets,
@@ -16,8 +18,8 @@ export default function TweetList({
   useEffect(() => {
     const fetchMoreTweet = async () => {
       const { tweets, isLastPage } = await getPaginatedTweets(page);
-      setTweets(tweets);
       setIsLastPage(isLastPage);
+      setTweets(tweets);
     };
     fetchMoreTweet();
   }, [page]);
@@ -29,12 +31,20 @@ export default function TweetList({
           <ListTweet key={tweet.id} {...tweet} />
         ))}
       </div>
-      <div className="w-full flex bottom-32 fixed gap-10 justify-center">
-        <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+      <div className="w-full max-w-screen-sm flex bottom-32 fixed mx-auto gap-10 items-center justify-center">
+        <button
+          className="disabled:text-stone-200"
+          onClick={() => setPage((prev) => (prev === 1 ? prev : prev - 1))}
+          disabled={page === 1}
+        >
           <ChevronLeftIcon width={20} height={20} />
         </button>
         <span>{page}</span>
-        <button disabled={isLastPage} onClick={() => setPage((p) => p + 1)}>
+        <button
+          className="disabled:text-stone-200"
+          onClick={() => setPage((prev) => (isLastPage ? prev : prev + 1))}
+          disabled={isLastPage}
+        >
           <ChevronRightIcon width={20} height={20} />
         </button>
       </div>
