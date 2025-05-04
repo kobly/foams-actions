@@ -8,9 +8,8 @@ import db from "../utils/db";
 import { getSession } from "@/utils/session";
 
 const LIMIT_NUMBER = 2;
-
 export const getInitialTweets = async () => {
-  const tweets = await db.tweet.findMany({
+  const tweets = db.tweet.findMany({
     include: { user: true },
     take: LIMIT_NUMBER,
     orderBy: {
@@ -21,13 +20,34 @@ export const getInitialTweets = async () => {
 };
 export type InitialTweets = Prisma.PromiseReturnType<typeof getInitialTweets>;
 
+export async function getTweetsByPage(page: number) {
+  const tweets = await db.tweet.findMany({
+    include: { user: true },
+    skip: LIMIT_NUMBER * (page - 1),
+    take: LIMIT_NUMBER,
+    orderBy: {
+      created_at: "desc",
+    },
+  });
+  return tweets;
+}
+export async function getTweetTotalCount() {
+  return db.tweet.count();
+}
+export async function getPaginatedTweets(page: number) {
+  const tweets = await getTweetsByPage(page);
+  const TWEETS_TOTAL_COUNT = await getTweetTotalCount();
+  const isLastPage = TWEETS_TOTAL_COUNT <= LIMIT_NUMBER * page;
+  return { tweets, isLastPage };
+}
+
 const tweetSchema = z.object({
   tweet: z.string({
     required_error: "Tweet is required.",
   }),
 });
 
-export async function createTweet(_: unknown, formData: FormData) {
+export async function uploadTweet(_: unknown, formData: FormData) {
   const data = {
     tweet: formData.get("tweet"),
   };
@@ -53,9 +73,4 @@ export async function createTweet(_: unknown, formData: FormData) {
     });
     redirect(`/tweets/${tweet.id}`);
   }
-
-  return {
-    error: null,
-    isSuccess: false,
-  };
 }
