@@ -18,7 +18,7 @@ const Input = ({
   const { pending } = useFormStatus();
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 w-full">
       <div className="relative flex">
         <label
           htmlFor={name}

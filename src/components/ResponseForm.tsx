@@ -1,70 +1,75 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
-import { postResponse } from "@/service/tweetService";
+import { useOptimistic } from "react";
+import { useFormState } from "react-dom";
+import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/solid";
 
-interface Props {
+import { addTweetResponse, InitialResponses } from "@/service/responseService";
+import Input from "./input";
+import { responseSchema } from "@/utils/scehma";
+
+export default function Responses({
+  initialResponses,
+  tweetId,
+  username,
+}: {
+  initialResponses: InitialResponses;
   tweetId: number;
-  initialResponses: {
-    id: number;
-    body: string;
-    user: { username: string };
-  }[];
-}
-
-export default function ResponseForm({ tweetId, initialResponses }: Props) {
-  const [isPending, startTransition] = useTransition();
-  const [message, setMessage] = useOptimistic("");
-  const [responses, addOptimisticResponse] = useOptimistic(
+  username: string;
+}) {
+  const [responses, optimisticResponse] = useOptimistic(
     initialResponses,
-    (state, newBody: string) => [
-      {
-        id: Date.now(), // optimistic ID
-        body: newBody,
-        user: { username: "당신" },
-      },
-      ...state,
-    ]
+    (previousResponses, responseOptimisticValue: string) => {
+      return [
+        ...previousResponses,
+        {
+          id: new Date().getDate(),
+          text: responseOptimisticValue,
+          created_at: new Date(),
+          tweetId,
+          user: { username, id: Infinity },
+        },
+      ];
+    }
   );
 
-  const handleSubmit = (formData: FormData) => {
-    const body = formData.get("body")?.toString();
-    if (!body) return;
-
-    addOptimisticResponse(body);
-    setMessage("");
-    startTransition(() => postResponse(formData));
+  const handleUploadResponse = (_: unknown, formData: FormData) => {
+    const result = responseSchema.safeParse(formData.get("text"));
+    if (result.success) {
+      optimisticResponse(result.data);
+      addTweetResponse(formData);
+    } else {
+      return result.error.flatten();
+    }
   };
-
+  const [state, action] = useFormState(handleUploadResponse, null);
   return (
-    <form
-      action={handleSubmit}
-      className="flex flex-col gap-2 border-t border-neutral-300 p-4 mt-4"
-    >
-      <input type="hidden" name="tweetId" value={tweetId} />
-      <textarea
-        name="body"
-        rows={3}
-        placeholder="답글을 입력하세요..."
-        required
-        className="border p-2 rounded"
-      />
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        {isPending ? "등록 중..." : "답글 작성"}
-      </button>
-
-      <div className="mt-4">
-        <h4 className="text-sm font-semibold mb-2">답글</h4>
-        {responses.map((res) => (
-          <div key={res.id} className="text-sm mb-2">
-            <strong>{res.user.username}:</strong> {res.body}
-          </div>
-        ))}
-      </div>
-    </form>
+    <div className="w-full flex flex-col gap-3">
+      <form action={action} className="flex w-full gap-2 ">
+        <Input
+          labelIcon={<ChatBubbleBottomCenterTextIcon />}
+          name="text"
+          type="text"
+          required
+          placeholder="Write a response."
+          errors={state?.fieldErrors[0]}
+        />
+        <input
+          className="hidden"
+          type="hidden"
+          name="tweetId"
+          value={tweetId}
+        />
+        <button className="ml-auto min-w-14 bg-stone-300 rounded-xl p-3">
+          추가
+        </button>
+      </form>
+      {responses.map((response) => (
+        <div key={response.id} className="*:text-md flex items-center my-3">
+          <span className="font-semibold w-3/12">{response.user.username}</span>
+          <span> {response.text}</span>
+        </div>
+      ))}
+    </div>
   );
 }

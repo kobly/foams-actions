@@ -1,57 +1,52 @@
 "use client";
 
-import { useTransition, useOptimistic } from "react";
-import { likeTweet, dislikeTweet } from "@/service/tweetService";
+import { InputHTMLAttributes, ReactNode } from "react";
+import { useFormStatus } from "react-dom";
 
-interface Props {
-  tweetId: number;
-  initialIsLiked: boolean;
-  initialLikeCount: number;
-}
-
-export default function LikeButton({
-  tweetId,
-  initialIsLiked,
-  initialLikeCount,
-}: Props) {
-  const [isPending, startTransition] = useTransition();
-  const [optimisticState, updateOptimisticState] = useOptimistic(
-    {
-      isLiked: initialIsLiked,
-      likeCount: initialLikeCount,
-    },
-    (state, action: "like" | "dislike") => {
-      if (action === "like") {
-        return {
-          isLiked: true,
-          likeCount: state.likeCount + 1,
-        };
-      } else {
-        return {
-          isLiked: false,
-          likeCount: state.likeCount - 1,
-        };
-      }
-    }
-  );
-
-  const handleClick = () => {
-    if (optimisticState.isLiked) {
-      updateOptimisticState("dislike");
-      startTransition(() => dislikeTweet(tweetId));
-    } else {
-      updateOptimisticState("like");
-      startTransition(() => likeTweet(tweetId));
-    }
-  };
+const Input = ({
+  name,
+  placeholder,
+  errors,
+  labelIcon,
+  ...rest
+}: {
+  name: string;
+  placeholder: string;
+  errors?: string[];
+  labelIcon?: ReactNode;
+} & InputHTMLAttributes<HTMLInputElement>) => {
+  const { pending } = useFormStatus();
 
   return (
-    <button
-      className="text-sm text-neutral-600 px-4 py-2 border rounded-lg mt-3"
-      onClick={handleClick}
-      disabled={isPending}
-    >
-      {optimisticState.isLiked ? "❤️" : "🤍"} {optimisticState.likeCount}
-    </button>
+    <div className="flex flex-col gap-1 w-full">
+      <div className="relative flex">
+        <label
+          htmlFor={name}
+          className="absolute top-1/2 left-4 -translate-y-1/2 text-stone-600 *:size-5"
+        >
+          {labelIcon}
+        </label>
+        <input
+          id={name}
+          className={`w-full h-12 pl-11 rounded-3xl bg-transparent text-stone-600 border placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-offset-2 transition ${
+            errors
+              ? "border-red-500 focus:ring-red-400"
+              : "border-stone-400 focus:ring-stone-300"
+          }`}
+          name={name}
+          placeholder={placeholder}
+          disabled={pending}
+          {...rest}
+        />
+      </div>
+      <div>
+        {errors?.map((error) => (
+          <p key={error} className="pt-2 pl-1 text-red-400">
+            {error}
+          </p>
+        ))}
+      </div>
+    </div>
   );
-}
+};
+export default Input;

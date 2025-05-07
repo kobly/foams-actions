@@ -1,24 +1,34 @@
 import { notFound } from "next/navigation";
-import db from "@/utils/db";
-import { ResponseForm } from "@/components/ResponseForm";
-import LikeButton from "@/components/LikeButton";
+import { unstable_cache } from "next/cache";
+
+import { getTweetDetail } from "@/service/tweetService";
+import { getLikeStatus } from "@/service/likeService";
+import { getInitialResponse } from "@/service/responseService";
 import { getSession } from "@/utils/session";
 
-async function getTweet(id: number) {
-  const tweet = await db.tweet.findUnique({
-    where: { id },
-    include: {
-      user: { select: { username: true } },
-      responses: {
-        include: {
-          user: { select: { username: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      },
-      likes: true,
-    },
-  });
-  return tweet;
+import Responses from "@/components/ResponseForm";
+import LikeButton from "@/components/LikeButton";
+
+async function getCachedLikeStatus(tweetId: number) {
+  const session = await getSession();
+  const cachedLikeStatus = unstable_cache(
+    getLikeStatus,
+    ["tweet-like-status"],
+    {
+      tags: [`like-status-${tweetId}`],
+    }
+  );
+  return cachedLikeStatus(tweetId, session.id!);
+}
+async function getCachedResponses(tweetId: number) {
+  const cachedComments = unstable_cache(
+    getInitialResponse,
+    ["tweet-responses"],
+    {
+      tags: [`tweet-responses-${tweetId}`],
+    }
+  );
+  return cachedComments(tweetId);
 }
 
 export default async function TweetDetail({
@@ -29,26 +39,25 @@ export default async function TweetDetail({
   const id = Number(params.id);
   if (isNaN(id)) return notFound();
 
-  const tweet = await getTweet(id);
+  const tweet = await getTweetDetail(id);
+  const responses = await getCachedResponses(id);
   if (!tweet) return notFound();
-
-  const session = await getSession();
-  const alreadyLiked = tweet.likes.some((like) => like.userId === session.id);
+  const { isLiked, likeCount } = await getCachedLikeStatus(id);
 
   return (
-    <div className="pb-36">
+    <div className="pb-36 w-full">
       <h3 className="p-5 flex items-center gap-3 border-b border-neutral-500">
         {tweet.user.username}
       </h3>
-      <p className="p-5">{tweet.tweet}</p>
-
-      <LikeButton
-        tweetId={tweet.id}
-        initialIsLiked={alreadyLiked}
-        initialLikeCount={tweet.likes.length}
-      />
-
-      <ResponseForm tweetId={tweet.id} initialResponses={tweet.responses} />
+      <p className="p-5 min-h-56">{tweet.tweet}</p>
+      <div className="w-full flex flex-col gap-5">
+        <LikeButton isLiked={isLiked} likeCount={likeCount} tweetId={id} />
+        <Responses
+          initialResponses={responses}
+          tweetId={id}
+          username={tweet.user.username}
+        />
+      </div>
     </div>
   );
 }
