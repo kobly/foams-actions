@@ -5,8 +5,8 @@ import { FireIcon, EnvelopeIcon, KeyIcon } from "@heroicons/react/24/solid";
 
 import { handleForm } from "./actions";
 
-import Input from "../../components/Input";
-import Button from "../../components/Button";
+import Input from "@/components/input";
+import Button from "@/components/button";
 import SuccessMessage from "@/components/SuccessMessage";
 import Link from "next/link";
 
