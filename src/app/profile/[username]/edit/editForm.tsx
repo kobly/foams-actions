@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 
 import { useActionState } from "react";
 import { editUserProfile } from "./action";
 
-type State = {
-  error: string | null;
-  success?: boolean;
-};
+type EditProfileState =
+  | { success: true; error: null }
+  | { success?: false; error: string };
 
-const initialState: State = { error: null };
+const initialState: EditProfileState = {
+  success: false,
+  error: "",
+};
 
 export default function EditForm({ user }: { user: any }) {
   const [state, formAction] = useActionState(editUserProfile, initialState);
