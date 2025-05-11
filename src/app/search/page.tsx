@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -15,7 +14,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     const fetchTweets = async () => {
-      if (!keyword || keyword.length < 1) {
+      if (!keyword || keyword.trim().length < 1) {
         setError("검색어는 1자 이상이어야 합니다.");
         setTweets([]);
         return;
@@ -24,9 +23,14 @@ export default function SearchPage() {
       setLoading(true);
       setError(null);
 
-      const data = await searchTweets(keyword);
-      setTweets(data);
-      setLoading(false);
+      try {
+        const data = await searchTweets(keyword);
+        setTweets(data);
+      } catch (err) {
+        setError("트윗을 불러오는 데 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchTweets();
