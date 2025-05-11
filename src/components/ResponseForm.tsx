@@ -5,7 +5,7 @@ import { useOptimistic, useActionState } from "react";
 import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/solid";
 
 import { addTweetResponse, InitialResponses } from "@/service/responseService";
-import Input from "./Input";
+import Input from "./input";
 import { responseSchema } from "@/utils/scehma";
 
 export default function Responses({

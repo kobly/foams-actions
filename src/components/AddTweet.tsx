@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import Button from "./Button";
+import Button from "./button";
 import { uploadTweet } from "@/service/tweetService";
 
 export default function AddTweet() {
