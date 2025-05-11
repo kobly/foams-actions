@@ -3,20 +3,20 @@ import db from "@/utils/db";
 import { redirect } from "next/navigation";
 import EditForm from "./editForm";
 
-type PageProps = {
-  params: {
-    username: string;
-  };
-};
+export default async function EditProfilePage({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+  const { username } = await params;
 
-export default async function EditProfilePage({ params }: PageProps) {
   const session = await getSession();
 
   const user = await db.user.findUnique({
     where: { id: session.id },
   });
 
-  if (!user || user.username !== params.username) {
+  if (!user || user.username !== username) {
     redirect("/");
   }
 
