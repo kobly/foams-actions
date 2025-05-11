@@ -4,19 +4,18 @@ import { getSession } from "@/lib/session";
 import Link from "next/link";
 import LogoutButton from "@/components/Logout";
 
-interface Props {
-  params: { username: string };
-}
+type PageParams = Promise<{ username: string }>;
 
-export default async function UserProfilePage({ params }: Props) {
+const UserProfilePage = async ({ params }: { params: PageParams }) => {
+  const { username } = await params;
+
   const session = await getSession();
 
   const user = await db.user.findUnique({
-    where: { username: params.username },
+    where: { username },
     include: {
       tweets: {
         orderBy: { created_at: "desc" },
-        include: {},
       },
     },
   });
@@ -74,4 +73,6 @@ export default async function UserProfilePage({ params }: Props) {
       </div>
     </div>
   );
-}
+};
+
+export default UserProfilePage;

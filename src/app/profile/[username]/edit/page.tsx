@@ -2,14 +2,11 @@ import { getSession } from "@/lib/session";
 import db from "@/utils/db";
 import { redirect } from "next/navigation";
 import EditForm from "./editForm";
-import { useParams } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+type PageParams = Promise<{ username: string }>;
 
-export default async function EditProfilePage() {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const params = useParams();
-  const username = (params?.username || "") as string;
+const EditProfilePage = async ({ params }: { params: PageParams }) => {
+  const { username } = await params;
 
   const session = await getSession();
   const user = await db.user.findUnique({
@@ -21,4 +18,6 @@ export default async function EditProfilePage() {
   }
 
   return <EditForm user={user} />;
-}
+};
+
+export default EditProfilePage;

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use server";
 
 import { getSession } from "@/lib/session";
@@ -7,7 +5,14 @@ import db from "@/utils/db";
 import bcrypt from "bcryptjs";
 import { PASSWORD_SCHEMA, checkUserPassword } from "@/utils/validator";
 
-export async function editUserProfile(prevState: any, formData: FormData) {
+type EditProfileState =
+  | { error: string; success?: false }
+  | { success: true; error?: null };
+
+export async function editUserProfile(
+  prevState: EditProfileState,
+  formData: FormData
+): Promise<EditProfileState> {
   const session = await getSession();
   if (!session.id) return { error: "로그인이 필요합니다." };
 
