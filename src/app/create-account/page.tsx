@@ -11,8 +11,8 @@ import { useActionState } from "react";
 import Link from "next/link";
 
 import { handleForm } from "./actions";
-import Input from "@/components/Input";
-import Button from "@/components/Button";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
 import SuccessMessage from "@/components/SuccessMessage";
 
 export default function Home() {
