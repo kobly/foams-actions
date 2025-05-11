@@ -1,19 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getSession } from "@/lib/session";
 import db from "@/utils/db";
 import { redirect } from "next/navigation";
 import EditForm from "./editForm";
 
-export default async function EditProfilePage(props: any) {
+interface PageProps {
+  params: {
+    username: string;
+  };
+}
+
+export default async function EditProfilePage({ params }: PageProps) {
   const session = await getSession();
-
-  const { username } = props.params;
-
   const user = await db.user.findUnique({
     where: { id: session.id },
   });
 
-  if (!user || user.username !== username) {
+  if (!user || user.username !== params.username) {
     redirect("/");
   }
 
