@@ -3,13 +3,13 @@ import db from "@/utils/db";
 import { redirect } from "next/navigation";
 import EditForm from "./editForm";
 
-interface EditPageProps {
+type PageProps = {
   params: {
     username: string;
   };
-}
+};
 
-export default async function EditProfilePage({ params }: EditPageProps) {
+export default async function EditProfilePage({ params }: PageProps) {
   const session = await getSession();
 
   const user = await db.user.findUnique({
@@ -22,3 +22,5 @@ export default async function EditProfilePage({ params }: EditPageProps) {
 
   return <EditForm user={user} />;
 }
+
+export const dynamic = "force-dynamic";
