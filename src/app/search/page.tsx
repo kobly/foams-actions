@@ -27,6 +27,7 @@ export default function SearchPage() {
         const data = await searchTweets(keyword);
         setTweets(data);
       } catch (err) {
+        console.error(err);
         setError("트윗을 불러오는 데 실패했습니다.");
       } finally {
         setLoading(false);
