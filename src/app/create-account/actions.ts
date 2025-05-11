@@ -1,24 +1,17 @@
 "use server";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
-import { typeToFlattenedError, z } from "zod";
+import { z, typeToFlattenedError } from "zod";
 
 import db from "@/utils/db";
 import { isEmailExist, isUsernameExist } from "@/service/userService";
-import { getSession } from "@/utils/session";
-
-const USERNAME_MIN_LENGTH = 5;
-const PASSWORD_MIN_LENGTH = 10;
-
-const PASSWORD_REGEX = /^(?=.*\d).{10,}$/;
+import { getSession } from "@/lib/session";
 
 const createAccountSchema = z
   .object({
     email: z
-      .string({
-        required_error: "Email is required.",
-      })
+      .string({ required_error: "Email is required." })
       .trim()
       .email("Please enter a valid email address.")
       .refine(
@@ -27,29 +20,21 @@ const createAccountSchema = z
       ),
 
     username: z
-      .string({
-        invalid_type_error: "Username must be a string.",
-        required_error: "Username is required.",
-      })
+      .string({ required_error: "Username is required." })
       .trim()
-      .min(
-        USERNAME_MIN_LENGTH,
-        `Username should be at least ${USERNAME_MIN_LENGTH} characters long.`
-      ),
+      .min(5, "Username should be at least 5 characters long."),
 
     password: z
-      .string({
-        required_error: "Password is required.",
-      })
-      .trim()
-      .min(
-        PASSWORD_MIN_LENGTH,
-        `Password should be at least ${PASSWORD_MIN_LENGTH} characters long.`
-      )
-      .regex(
-        PASSWORD_REGEX,
-        "Password should contain at least one number (0-9)."
-      ),
+      .string({ required_error: "Password is required." })
+      .min(10, "Password must be at least 10 characters long.")
+      .regex(/[0-9]/, "Password must include a number.")
+      .regex(/[A-Z]/, "Password must include an uppercase letter."),
+
+    confirmPassword: z.string({ required_error: "Confirm your password." }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
   })
   .superRefine(async ({ username }, ctx) => {
     const user = await isUsernameExist(username);
@@ -79,7 +64,12 @@ const createAccountSchema = z
 interface FormState {
   isSuccess: boolean;
   error: typeToFlattenedError<
-    { email: string; username: string; password: string },
+    {
+      email: string;
+      username: string;
+      password: string;
+      confirmPassword: string;
+    },
     string
   > | null;
 }
@@ -92,11 +82,13 @@ export async function handleForm(
     username: formData.get("username"),
     email: formData.get("email"),
     password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
   };
+
   const result = await createAccountSchema.spa(data);
   if (!result.success) {
     return {
-      error: result.error?.flatten(),
+      error: result.error.flatten(),
       isSuccess: false,
     };
   }
@@ -108,13 +100,12 @@ export async function handleForm(
       username: result.data.username,
       password: hashedPassword,
     },
-    select: {
-      id: true,
-    },
+    select: { id: true },
   });
 
   const session = await getSession();
   session.id = user.id;
   await session.save();
+
   redirect("/");
 }

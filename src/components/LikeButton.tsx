@@ -1,52 +1,56 @@
 "use client";
 
-import { InputHTMLAttributes, ReactNode } from "react";
-import { useFormStatus } from "react-dom";
+import { useOptimistic, startTransition } from "react";
+import { useRouter } from "next/navigation";
+import { HandThumbUpIcon } from "@heroicons/react/24/solid";
+import { HandThumbUpIcon as OutlineHandThumbUpIcon } from "@heroicons/react/24/outline";
 
-const Input = ({
-  name,
-  placeholder,
-  errors,
-  labelIcon,
-  ...rest
+import { dislikeTweet, likeTweet } from "@/service/likeService";
+
+export default function LikeButton({
+  isLiked,
+  likeCount,
+  tweetId,
 }: {
-  name: string;
-  placeholder: string;
-  errors?: string[];
-  labelIcon?: ReactNode;
-} & InputHTMLAttributes<HTMLInputElement>) => {
-  const { pending } = useFormStatus();
+  isLiked: boolean;
+  likeCount: number;
+  tweetId: number;
+}) {
+  const router = useRouter();
+  const [state, toggle] = useOptimistic({ isLiked, likeCount }, (prev) => ({
+    isLiked: !prev.isLiked,
+    likeCount: prev.isLiked ? prev.likeCount - 1 : prev.likeCount + 1,
+  }));
+
+  const handleClick = () => {
+    startTransition(async () => {
+      toggle(null);
+      if (state.isLiked) {
+        await dislikeTweet(tweetId);
+      } else {
+        await likeTweet(tweetId);
+      }
+      router.refresh();
+    });
+  };
 
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <div className="relative flex">
-        <label
-          htmlFor={name}
-          className="absolute top-1/2 left-4 -translate-y-1/2 text-stone-600 *:size-5"
-        >
-          {labelIcon}
-        </label>
-        <input
-          id={name}
-          className={`w-full h-12 pl-11 rounded-3xl bg-transparent text-stone-600 border placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-offset-2 transition ${
-            errors
-              ? "border-red-500 focus:ring-red-400"
-              : "border-stone-400 focus:ring-stone-300"
-          }`}
-          name={name}
-          placeholder={placeholder}
-          disabled={pending}
-          {...rest}
-        />
-      </div>
-      <div>
-        {errors?.map((error) => (
-          <p key={error} className="pt-2 pl-1 text-red-400">
-            {error}
-          </p>
-        ))}
-      </div>
-    </div>
+    <button
+      onClick={handleClick}
+      className={`flex items-center gap-2 text-sm border rounded-full px-3 py-1 transition-colors ${
+        state.isLiked
+          ? "bg-rose-500 text-white border-rose-500"
+          : "text-stone-500 border-stone-300 hover:bg-stone-200"
+      }`}
+    >
+      {state.isLiked ? (
+        <HandThumbUpIcon className="w-5 h-5" />
+      ) : (
+        <OutlineHandThumbUpIcon className="w-5 h-5" />
+      )}
+      <span>
+        {state.isLiked ? state.likeCount : `공감하기 (${state.likeCount})`}
+      </span>
+    </button>
   );
-};
-export default Input;
+}

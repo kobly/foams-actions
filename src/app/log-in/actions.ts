@@ -1,12 +1,12 @@
 "use server";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { typeToFlattenedError, z } from "zod";
 
 import db from "@/utils/db";
 import { isEmailExist } from "@/service/userService";
-import { getSession } from "@/utils/session";
+import { getSession } from "@/lib/session";
 
 const logInSchema = z.object({
   email: z

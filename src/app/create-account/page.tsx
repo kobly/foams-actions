@@ -1,25 +1,25 @@
 "use client";
 
 import {
-  FireIcon,
   EnvelopeIcon,
   UserIcon,
   KeyIcon,
+  FireIcon,
 } from "@heroicons/react/24/solid";
 
-import { handleForm } from "./actions";
+import { useActionState } from "react";
+import Link from "next/link";
 
+import { handleForm } from "./actions";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import SuccessMessage from "@/components/SuccessMessage";
-import Link from "next/link";
-import { useActionState } from "react";
 
 export default function Home() {
   const [state, action] = useActionState(handleForm, null);
 
   return (
-    <main className="flex flex-col gap-10 items-center justify-center">
+    <main className="max-w-xl mx-auto flex flex-col gap-10 items-center justify-center">
       <h1 className="text-center text-6xl">
         <FireIcon className="size-20 text-red-400" />
       </h1>
@@ -28,14 +28,14 @@ export default function Home() {
           name="email"
           type="email"
           placeholder="Email"
-          required={true}
+          required
           errors={state?.error?.fieldErrors.email}
           labelIcon={<EnvelopeIcon />}
         />
         <Input
           name="username"
           placeholder="Username"
-          required={true}
+          required
           errors={state?.error?.fieldErrors.username}
           labelIcon={<UserIcon />}
         />
@@ -43,8 +43,16 @@ export default function Home() {
           name="password"
           type="password"
           placeholder="Password"
-          required={true}
+          required
           errors={state?.error?.fieldErrors.password}
+          labelIcon={<KeyIcon />}
+        />
+        <Input
+          name="confirmPassword"
+          type="password"
+          placeholder="Confirm Password"
+          required
+          errors={state?.error?.fieldErrors.confirmPassword}
           labelIcon={<KeyIcon />}
         />
         <Button text="Create Account" />

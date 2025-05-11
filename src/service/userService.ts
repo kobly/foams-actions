@@ -3,7 +3,7 @@
 import db from "@/utils/db";
 import { notFound } from "next/navigation";
 
-import { getSession } from "@/utils/session";
+import { getSession } from "@/lib/session";
 import { Prisma } from "@prisma/client";
 
 export const getUserInfoBySession = async () => {

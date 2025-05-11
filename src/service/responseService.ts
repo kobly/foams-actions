@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import db from "@/utils/db";
-import { getSession } from "@/utils/session";
+import { getSession } from "@/lib/session";
 import { responseSchema } from "@/utils/scehma";
 
 export const getInitialResponse = async (tweetId: number) => {

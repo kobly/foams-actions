@@ -1,9 +1,8 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-
 import db from "@/utils/db";
-import { getSession } from "@/utils/session";
+import { getSession } from "@/lib/session";
 
 export const getLikeStatus = async (tweetId: number, userId: number) => {
   const like = await db.like.findUnique({
@@ -27,10 +26,12 @@ export const getLikeStatus = async (tweetId: number, userId: number) => {
 
 export const likeTweet = async (tweetId: number) => {
   const session = await getSession();
+  if (!session?.id) throw new Error("Not logged in");
+
   try {
     await db.like.create({
       data: {
-        userId: session.id!,
+        userId: session.id,
         tweetId,
       },
     });
@@ -39,12 +40,15 @@ export const likeTweet = async (tweetId: number) => {
     console.error(error);
   }
 };
+
 export const dislikeTweet = async (tweetId: number) => {
   const session = await getSession();
+  if (!session?.id) throw new Error("Not logged in");
+
   try {
     await db.like.delete({
       where: {
-        id: { userId: session.id!, tweetId },
+        id: { userId: session.id, tweetId },
       },
     });
     revalidateTag(`like-status-${tweetId}`);

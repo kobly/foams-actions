@@ -5,7 +5,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 
 import db from "../utils/db";
-import { getSession } from "@/utils/session";
+import { getSession } from "@/lib/session";
 
 const LIMIT_NUMBER = 2;
 export const getInitialTweets = async () => {

@@ -14,7 +14,7 @@ export default function Home() {
   const [state, action] = useFormState(handleForm, null);
 
   return (
-    <main className="flex flex-col gap-10 items-center justify-center">
+    <main className=" max-w-xl mx-auto flex flex-col gap-10 items-center justify-center">
       <h1 className="text-center text-6xl">
         <FireIcon className="size-20 text-red-400" />
       </h1>
