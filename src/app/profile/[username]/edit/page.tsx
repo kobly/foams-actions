@@ -3,14 +3,15 @@ import db from "@/utils/db";
 import { redirect } from "next/navigation";
 import EditForm from "./editForm";
 
-interface PageProps {
+interface EditPageProps {
   params: {
     username: string;
   };
 }
 
-export default async function EditProfilePage({ params }: PageProps) {
+export default async function EditProfilePage({ params }: EditPageProps) {
   const session = await getSession();
+
   const user = await db.user.findUnique({
     where: { id: session.id },
   });
