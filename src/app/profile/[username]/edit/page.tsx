@@ -2,16 +2,13 @@ import { getSession } from "@/lib/session";
 import db from "@/utils/db";
 import { redirect } from "next/navigation";
 import EditForm from "./editForm";
-
-interface EditProfilePageProps {
-  params: {
-    username: string;
-  };
-}
+import { JSX } from "react";
 
 export default async function EditProfilePage({
   params,
-}: EditProfilePageProps) {
+}: {
+  params: { username: string };
+}): Promise<JSX.Element> {
   const session = await getSession();
 
   const user = await db.user.findUnique({
